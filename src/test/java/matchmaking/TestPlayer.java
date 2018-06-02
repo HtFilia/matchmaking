@@ -28,8 +28,6 @@ import exceptions.NullNameException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import lucaslebihan.matchmaking.Elo;
-import lucaslebihan.matchmaking.Player;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

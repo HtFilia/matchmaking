@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package lucaslebihan.matchmaking;
+package matchmaking;
 
 import exceptions.NotInDatabaseException;
 import java.sql.Connection;
