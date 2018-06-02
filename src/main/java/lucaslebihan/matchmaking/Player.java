@@ -43,7 +43,7 @@ public class Player {
     
     private Elo elo;
     
-    private List<Game> games;
+    private List<Game> games; //TODO
     
     public Player(String name) throws NullNameException {
         if (name == null) {
@@ -65,21 +65,21 @@ public class Player {
     
     public Player(Connection connection, String name) 
             throws NotInDatabaseException, SQLException {
-        int eloValue;
+        int eloValue = 0;
         ResultSet rsPlayerDB;
-        String stringPlayerDB = "SELECT * FROM Players WHERE Pseudo = ?";
+        String stringPlayerDB = "SELECT * FROM `players` WHERE `Pseudo` = ?";
         PreparedStatement psPlayerDB = connection.prepareStatement(stringPlayerDB);
         psPlayerDB.setString(1, name);
         rsPlayerDB = psPlayerDB.executeQuery();
-        boolean canCreate = !(rsPlayerDB.next());
-        if (canCreate) {
-            this.name = name;
+        if (rsPlayerDB.next()) {
             eloValue = rsPlayerDB.getInt("Elo");
-            this.elo = new Elo(eloValue);
-            this.games = new ArrayList<>(); //FOR NOW WE DONT CHECK THE GAMES IN DB
         } else {
             throw new NotInDatabaseException();
         }
+        
+        this.name = name;
+        this.elo = new Elo(eloValue);
+        this.games = new ArrayList<>();
     }
     
     public String getName() {
@@ -95,16 +95,13 @@ public class Player {
     }
     
     public void updatePlayer(Connection connection)
-            throws NotInDatabaseException, SQLException {
+            throws SQLException {
         int eloValue = elo.getEloValue();
-        String request = "UPDATE Players SET Elo = '?' WHERE Pseudo = ?";
+        String request = "UPDATE `Players` SET `Elo` = ? WHERE `Pseudo` = ?";
         PreparedStatement psRequest = connection.prepareStatement(request);
         psRequest.setInt(1, eloValue);
         psRequest.setString(2, name);
-        boolean executed = psRequest.execute();
-        if (!executed) {
-            throw new SQLException("Couldn't update player.");
-        }
+        psRequest.execute();
     }
     
     public void lookingForGame(GameQueue gameQueue) {
