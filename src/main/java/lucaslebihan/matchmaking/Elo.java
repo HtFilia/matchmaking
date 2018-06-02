@@ -21,14 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package exceptions;
+package lucaslebihan.matchmaking;
 
 /**
  *
  * @author Lucas HtFilia Lebihan
  */
-public class NotInDatabaseException extends NameException {
-    public NotInDatabaseException() {
-        System.out.println("This player is not registered yet.");
+public class Elo {
+    
+    private int elo;
+    
+    public Elo() {
+        this.elo = 1000;
+    }
+    
+    public Elo(int elo) {
+        this.elo = elo;
+    }
+    
+    public int getEloValue() {
+        return this.elo;
+    }
+    
+    public void setEloValue(int elo) {
+        this.elo = elo;
+    }
+    
+    public void addDeltaElo(int deltaElo) {
+        this.elo += deltaElo;
+    }
+    
+    public double probWin(Elo elo) {
+        return 1 / (1 + Math.pow(10, (elo.getEloValue() - this.elo) / 400));
+    }
+    
+    public void changeElo(Elo elo, int factorK, int resultGame) {
+        int deltaElo = (int) (factorK * (resultGame - this.probWin(elo)));
+        this.addDeltaElo(deltaElo);
+        elo.addDeltaElo(-deltaElo);
     }
 }
