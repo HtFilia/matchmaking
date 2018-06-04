@@ -58,6 +58,5 @@ public class Elo {
     public void changeElo(Elo elo, int factorK, int resultGame) {
         int deltaElo = (int) (factorK * (resultGame - this.probWin(elo)));
         this.addDeltaElo(deltaElo);
-        elo.addDeltaElo(-deltaElo);
     }
 }

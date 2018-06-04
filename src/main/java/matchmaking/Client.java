@@ -23,42 +23,36 @@
  */
 package matchmaking;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import exceptions.NotInDatabaseException;
 import java.sql.SQLException;
-import org.junit.*;
-import static org.junit.Assert.assertNotNull;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Lucas HtFilia Lebihan
  */
-public class TestConnection {
+public class Client implements Runnable {
     
-    private static Connection connection;
+    private final Player player;
+    private final Server server;
     
-    @BeforeClass
-    public static void connectDB() 
-            throws SQLException, ClassNotFoundException {
-        final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        final String DB_URL = "jdbc:mysql://localhost:3306/matchmakingtest?"
-                + "useUnicode=yes"
-                + "&characterEncoding=UTF-8" 
-                + "&useJDBCCompliantTimezoneShift=true"
-                + "&useLegacyDatetimeCode=false&serverTimezone=UTC";
-        final String DB_USER = "root";
-        final String DB_PWD = "";
-        Class.forName(JDBC_DRIVER);
-        connection  = DriverManager.getConnection(DB_URL, DB_USER, DB_PWD);
+    public Client(Player player, Server server) {
+        this.player = player;
+        this.server = server;
     }
     
-    @Test
-    public void testIsConnected() {
-        assertNotNull(connection);
-    }
-    
-    @After
-    public void deconnectDB() {
-        connection = null;
+    @Override
+    public void run() {
+        while(true) {
+            if (!player.isPlaying()) {
+                player.lookingForGame(server.getGameQueue());
+            }
+            try {
+                player.currentGame().endGame();
+            } catch (SQLException | NotInDatabaseException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

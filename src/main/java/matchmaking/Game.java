@@ -38,36 +38,48 @@ public class Game {
     
     private final Player player2;
     
-    private final int factorK;
-    
     private final Connection connection;
      
-    public Game(Player player1, Player player2, int factorK, Connection connection) {
+    public Game(Player player1, Player player2, Connection connection) {
         if (player1.equals(player2)) {
             throw new IllegalArgumentException("Can't match a player with himself.");
         }
         
         this.player1 = player1;
         this.player2 = player2;
-        this.factorK = factorK;
         this.connection = connection;
     }
     
-    public Player endGame() 
+    public Player getFirstPlayer() {
+        return player1;
+    }
+    
+    public Player getSecondPlayer() {
+        return player2;
+    }
+    
+    public void endGame() 
             throws NotInDatabaseException, SQLException {
         Random rand = new Random();
         double randValue = rand.nextDouble();
+        System.out.print("Fin du match entre " + player1.getName() + " et "
+                         + player2.getName() + "\nResultat : Victoire de ");
         if (randValue < player1.getElo().probWin(player2.getElo())) {
-            player1.getElo().changeElo(player2.getElo(), factorK, 1);
-            player1.updatePlayer(connection);
-            player2.updatePlayer(connection);
-            return player1;
+            player1.getElo().changeElo(player2.getElo(), player1.getFactorK(), 1);
+            player2.getElo().changeElo(player1.getElo(), player2.getFactorK(), 0);
+            System.out.println(player1.getName());
+        } else {
+            player1.getElo().changeElo(player2.getElo(), player1.getFactorK(), 0);
+            player2.getElo().changeElo(player1.getElo(), player2.getFactorK(), 1);
+            System.out.println(player2.getName());
         }
-        player2.getElo().changeElo(player1.getElo(), factorK, 1);
         player1.updatePlayer(connection);
         player2.updatePlayer(connection);
-        return player2;
-        
+        player1.removeGame(this);
+        player2.removeGame(this);
+        player1.hasPlayedGame();
+        player2.hasPlayedGame();
+        System.out.println("Nouveau classement : \n" + player1.toString() 
+                            + "\n" + player2.toString());
     }
-    
 }

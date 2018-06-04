@@ -37,14 +37,11 @@ public class GameQueue {
     
     private final double treshold;
     
-    private final int factorK;
-    
     private final Connection connection;
     
-    public GameQueue(int treshold, int factorK, Connection connection) {
+    public GameQueue(int treshold, Connection connection) {
         this.playersWaiting = new ArrayList<>();
         this.treshold = treshold;
-        this.factorK = factorK;
         this.connection = connection;
     }
     
@@ -57,7 +54,11 @@ public class GameQueue {
         return (probWin < treshold);
     }
     
-    public Game findMatch() {
+    public int numberPlayersWaiting() {
+        return playersWaiting.size();
+    }
+    
+    public void findMatch() {
         boolean shouldMatch;
         int index = 1;
         for (; index < playersWaiting.size(); ++index) {
@@ -66,9 +67,10 @@ public class GameQueue {
                 break;
             }
         }
-        Game game = new Game(playersWaiting.get(0), playersWaiting.get(index), factorK, connection);
+        Game game = new Game(playersWaiting.get(0), playersWaiting.get(index), connection);
+        playersWaiting.get(0).addGame(game);
+        playersWaiting.get(index).addGame(game);
         playersWaiting.remove(0);
         playersWaiting.remove(index);
-        return game;
     }
 }

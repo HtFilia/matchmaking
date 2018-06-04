@@ -24,41 +24,34 @@
 package matchmaking;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import org.junit.*;
-import static org.junit.Assert.assertNotNull;
 
 /**
  *
  * @author Lucas HtFilia Lebihan
  */
-public class TestConnection {
+public class Server implements Runnable {
     
-    private static Connection connection;
+    private GameQueue gameQueue;
+    private Connection connection;
     
-    @BeforeClass
-    public static void connectDB() 
-            throws SQLException, ClassNotFoundException {
-        final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        final String DB_URL = "jdbc:mysql://localhost:3306/matchmakingtest?"
-                + "useUnicode=yes"
-                + "&characterEncoding=UTF-8" 
-                + "&useJDBCCompliantTimezoneShift=true"
-                + "&useLegacyDatetimeCode=false&serverTimezone=UTC";
-        final String DB_USER = "root";
-        final String DB_PWD = "";
-        Class.forName(JDBC_DRIVER);
-        connection  = DriverManager.getConnection(DB_URL, DB_USER, DB_PWD);
+    public Server(GameQueue gameQueue, Connection connection) {
+        this.gameQueue = gameQueue;
+        this.connection = connection;
     }
     
-    @Test
-    public void testIsConnected() {
-        assertNotNull(connection);
+    public GameQueue getGameQueue() {
+        return gameQueue;
     }
     
-    @After
-    public void deconnectDB() {
-        connection = null;
+    public Connection getConnection() {
+        return connection;
+    }
+    
+    public void run() {
+        while(true) {
+            while(gameQueue.numberPlayersWaiting() > 0) {
+                gameQueue.findMatch();
+            }
+        }
     }
 }

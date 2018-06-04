@@ -23,20 +23,27 @@
  */
 package matchmaking;
 
+import exceptions.NotInDatabaseException;
+import exceptions.NullNameException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.junit.*;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  *
  * @author Lucas HtFilia Lebihan
  */
-public class TestConnection {
+public class TestGame {
     
+    private static Elo eloPlayer1;
+    private static Elo eloPlayer2;
+    private static Player player1;
+    private static Player player2;
     private static Connection connection;
-    
+            
     @BeforeClass
     public static void connectDB() 
             throws SQLException, ClassNotFoundException {
@@ -52,13 +59,27 @@ public class TestConnection {
         connection  = DriverManager.getConnection(DB_URL, DB_USER, DB_PWD);
     }
     
-    @Test
-    public void testIsConnected() {
-        assertNotNull(connection);
+    @Before
+    public void initPlayers() throws NullNameException {
+        eloPlayer1 = new Elo();
+        eloPlayer2 = new Elo();
+        player1 = new Player("player1", eloPlayer1, 40, 0);
+        player2 = new Player("player2", eloPlayer2, 40, 0);
     }
     
-    @After
-    public void deconnectDB() {
-        connection = null;
+    @Test
+    public void initGameTest() {
+        Game game1 = new Game(player1, player2, connection);
+        assertEquals(game1.getFirstPlayer(), player1);
+        assertEquals(game1.getSecondPlayer(), player2);
+    }
+    
+    @Test
+    public void endGameTest() 
+            throws NotInDatabaseException, SQLException {
+        Game game2 = new Game(player1, player2, connection);
+        game2.endGame();
+        assertNotEquals(player1.getElo().getEloValue(), 1000);
+        assertNotEquals(player2.getElo().getEloValue(), 1000);
     }
 }
